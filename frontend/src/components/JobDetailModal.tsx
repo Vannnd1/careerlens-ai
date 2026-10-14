@@ -14,6 +14,68 @@ interface JobDetailModalProps {
   onClose: () => void
 }
 
+function renderInlineBold(text: string): React.ReactNode[] {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>
+    }
+    const italicParts = part.split(/(\*[^*]+\*)/g)
+    if (italicParts.length > 1) {
+      return (
+        <React.Fragment key={i}>
+          {italicParts.map((sub, j) => {
+            if (sub.startsWith('*') && sub.endsWith('*')) {
+              return <em key={j}>{sub.slice(1, -1)}</em>
+            }
+            return sub
+          })}
+        </React.Fragment>
+      )
+    }
+    return part
+  })
+}
+
+function renderFormattedChatText(text: string) {
+  const lines = text.split('\n')
+  return (
+    <div className="formatted-chat-content">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim()
+        if (!trimmed) {
+          return <div key={idx} style={{ height: '6px' }} />
+        }
+
+        if (trimmed.startsWith('### ') || trimmed.startsWith('## ')) {
+          const headingText = trimmed.replace(/^#+\s*/, '')
+          return (
+            <div key={idx} style={{ fontWeight: 700, margin: '8px 0 4px', color: 'inherit', fontSize: '13.5px' }}>
+              {renderInlineBold(headingText)}
+            </div>
+          )
+        }
+
+        if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+          const bulletText = trimmed.replace(/^[*-]\s*/, '')
+          return (
+            <div key={idx} style={{ display: 'flex', gap: '6px', marginLeft: '6px', marginBottom: '4px' }}>
+              <span style={{ color: 'var(--color-accent)', fontWeight: 700 }}>•</span>
+              <div style={{ flex: 1 }}>{renderInlineBold(bulletText)}</div>
+            </div>
+          )
+        }
+
+        return (
+          <div key={idx} style={{ marginBottom: '4px', lineHeight: 1.55 }}>
+            {renderInlineBold(line)}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export const JobDetailModal: React.FC<JobDetailModalProps> = ({
   jobMatch,
   profile,
@@ -238,7 +300,7 @@ export const JobDetailModal: React.FC<JobDetailModalProps> = ({
             <div className="chat-transcript" role="log" aria-live="polite">
               {chatMessages.map((msg, i) => (
                 <div key={i} className={`chat-bubble ${msg.sender}`}>
-                  <div>{msg.text}</div>
+                  {renderFormattedChatText(msg.text)}
                   <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '4px', textAlign: 'right' }}>
                     {msg.timestamp}
                     {msg.ai_available === false && ' (Mode Cadangan)'}

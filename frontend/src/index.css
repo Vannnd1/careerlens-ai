@@ -638,11 +638,22 @@ body {
 }
 
 .chat-bubble {
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: var(--radius-md);
   font-size: 13px;
-  line-height: 1.5;
-  max-width: 85%;
+  line-height: 1.6;
+  max-width: 90%;
+  word-break: break-word;
+}
+
+.formatted-chat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.formatted-chat-content strong {
+  font-weight: 700;
+  color: inherit;
 }
 
 .chat-bubble.user {
