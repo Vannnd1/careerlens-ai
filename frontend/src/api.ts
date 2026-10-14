@@ -8,7 +8,7 @@ import type {
   RoadmapResponse,
 } from './types'
 
-const BASE_URL = ''
+const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) || ''
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
